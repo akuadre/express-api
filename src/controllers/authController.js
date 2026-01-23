@@ -117,4 +117,15 @@ const logout = async (req, res) => {
   }
 };
 
-export { register, login, logout };
+const getProfile = async (req, res) => {
+  const user = req.user;
+  
+  return successResponse(res, "User profile fetched successfully", {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt
+  }, 200);
+};
+
+export { getProfile, register, login, logout };
