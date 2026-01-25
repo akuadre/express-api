@@ -4,7 +4,12 @@ import { generateToken } from "../utils/generateToken.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
 import { generateOtp, hashOtp } from "../utils/otp.js";
-import { sendOtpEmail, sendPasswordResetSuccessEmail, sendSecurityLogoutEmail, sendWelcomeEmail } from "../utils/sendEmail.js";
+import {
+  sendOtpEmail,
+  sendPasswordResetSuccessEmail,
+  sendSecurityLogoutEmail,
+  sendWelcomeEmail,
+} from "../utils/sendEmail.js";
 import { createHash, randomBytes } from "node:crypto";
 
 const register = async (req, res) => {
@@ -56,11 +61,20 @@ export const sendEmailOtp = (purpose) => {
         400,
       );
 
-    // ===== Cek kalau purpose REGISTER && user verified =====
+    // ===== Cek user existance =====
+    const user = await prisma.user.findUnique({ where: { email } });
+
     if (purpose === "REGISTER") {
-      const user = await prisma.user.findUnique({ where: { email } });
+      // Kalau REGISTER, user boleh belum ada
       if (user?.emailVerified) {
         return errorResponse(res, "Email already verified", 400);
+      }
+    }
+
+    if (purpose === "RESET_PASSWORD") {
+      // Kalau RESET_PASSWORD, user harus exist
+      if (!user) {
+        return errorResponse(res, "Email not found", 404);
       }
     }
 
