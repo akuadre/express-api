@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String
-  email         String    @unique
-  password      String
-  emailVerified Boolean   @default(false)
-  createdAt     DateTime  @default(now())
+  id                String    @id @default(uuid())
+  name              String
+  email             String    @unique
+  password          String
+  emailVerified     Boolean   @default(false)
+  passwordChangedAt DateTime?
+  createdAt         DateTime  @default(now())
 
   movies Movie[] @relation("MovieCreator")
   watchlistItems WatchlistItem[]

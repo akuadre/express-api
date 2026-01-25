@@ -314,3 +314,117 @@ export const sendWelcomeEmail = async ({ email, name }) => {
 
   await transporter.sendMail(mailOptions);
 };
+
+export const sendPasswordResetSuccessEmail = async ({ email }) => {
+  const mailOptions = {
+    from: `"Movie App Security" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "✅ Your Password Has Been Reset",
+    html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Password Reset Successful</title>
+</head>
+<body style="
+  margin:0;
+  padding:0;
+  background-color:#0b0b0c;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Inter,Arial,sans-serif;
+  color:#ffffff;
+">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 0;">
+<tr>
+<td align="center">
+<table width="600" style="
+  background:linear-gradient(180deg,#111214 0%,#0b0b0c 100%);
+  border-radius:16px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.6);
+  overflow:hidden;
+">
+
+<tr>
+<td style="padding:40px;text-align:center;border-bottom:1px solid #1f1f23;">
+  <h1 style="margin:0;font-size:26px;font-weight:600;">
+    Password Updated
+  </h1>
+  <p style="margin-top:10px;font-size:14px;color:#9ca3af;">
+    Security confirmation
+  </p>
+</td>
+</tr>
+
+<tr>
+<td style="padding:40px;">
+  <p style="font-size:16px;color:#e5e7eb;line-height:1.6;">
+    Your password was successfully changed.
+  </p>
+
+  <div style="
+    background:#0f1013;
+    border-left:4px solid #22c55e;
+    padding:20px;
+    border-radius:10px;
+    margin:25px 0;
+  ">
+    <p style="margin:0;font-size:14px;color:#d1d5db;">
+      ✅ You can now log in using your new password.
+    </p>
+  </div>
+
+  <p style="font-size:13px;color:#9ca3af;line-height:1.6;">
+    <strong style="color:#ffffff;">Didn’t do this?</strong><br/>
+    Please contact support immediately and secure your account.
+  </p>
+</td>
+</tr>
+
+<tr>
+<td style="padding:30px;text-align:center;border-top:1px solid #1f1f23;font-size:12px;color:#6b7280;">
+  © ${new Date().getFullYear()} Movie App<br/>
+  Security notification
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+export const sendSecurityLogoutEmail = async ({ email }) => {
+  await transporter.sendMail({
+    from: `"Movie App Security" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "🔒 You’ve Been Logged Out for Security Reasons",
+    html: `
+<!DOCTYPE html>
+<html>
+<body style="
+  background:#0b0b0c;
+  color:#fff;
+  font-family:Arial;
+  padding:40px;
+">
+  <h2>Security Alert</h2>
+  <p>
+    Your account password was recently changed.
+    For your protection, all active sessions have been logged out.
+  </p>
+  <p style="color:#9ca3af;font-size:13px;">
+    Please log in again using your new password.
+  </p>
+</body>
+</html>
+    `,
+  });
+};

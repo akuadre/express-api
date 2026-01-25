@@ -4,7 +4,7 @@ import { generateToken } from "../utils/generateToken.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
 import { generateOtp, hashOtp } from "../utils/otp.js";
-import { sendOtpEmail, sendWelcomeEmail } from "../utils/sendEmail.js";
+import { sendOtpEmail, sendPasswordResetSuccessEmail, sendSecurityLogoutEmail, sendWelcomeEmail } from "../utils/sendEmail.js";
 import { createHash, randomBytes } from "node:crypto";
 
 const register = async (req, res) => {
@@ -224,12 +224,24 @@ export const resetPassword = async (req, res) => {
 
     await prisma.user.update({
       where: { email: record.email },
-      data: { password: hashedPassword },
+      data: {
+        password: hashedPassword,
+        passwordChangedAt: new Date(Date.now() - 1000),
+      },
     });
 
     // token single-use
     await prisma.passwordResetToken.delete({
       where: { id: record.id },
+    });
+
+    await sendPasswordResetSuccessEmail({
+      email: record.email,
+    });
+
+    // recommended
+    await sendSecurityLogoutEmail({
+      email: record.email,
     });
 
     return successResponse(
