@@ -5,6 +5,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 import { generateOtp, hashOtp } from "../utils/otp.js";
 import { sendOtpEmail, sendWelcomeEmail } from "../utils/sendEmail.js";
+import { createHash, randomBytes } from "node:crypto";
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -163,10 +164,80 @@ export const verifyEmailOtp = async (req, res) => {
       responseData.token = token;
     }
 
+    // ===== RESET PASSWORD =====
+    if (purpose === "RESET_PASSWORD") {
+      const rawToken = randomBytes(32).toString("hex");
+      const tokenHash = createHash("sha256").update(rawToken).digest("hex");
+
+      // invalidate token lama
+      await prisma.passwordResetToken.deleteMany({
+        where: { email },
+      });
+
+      await prisma.passwordResetToken.create({
+        data: {
+          email,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        },
+      });
+
+      responseData.resetToken = rawToken;
+    }
+
     // sukses -> hapus otp
     await prisma.emailOtp.delete({ where: { id: record.id } });
 
     return successResponse(res, "OTP verified succesfully", responseData, 200);
+  } catch (err) {
+    console.error(err);
+    return errorResponse(res, "Internal server error", 500);
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { resetToken, newPassword } = req.body;
+
+  if (!resetToken || !newPassword) {
+    return errorResponse(res, "Reset token and new password are required", 400);
+  }
+
+  const tokenHash = createHash("sha256").update(resetToken).digest("hex");
+
+  try {
+    const record = await prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+    });
+
+    if (!record)
+      return errorResponse(res, "Invalid or expired reset token", 400);
+
+    if (record.expiresAt < new Date()) {
+      await prisma.passwordResetToken.delete({
+        where: { id: record.id },
+      });
+      return errorResponse(res, "Reset token expired", 400);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await prisma.user.update({
+      where: { email: record.email },
+      data: { password: hashedPassword },
+    });
+
+    // token single-use
+    await prisma.passwordResetToken.delete({
+      where: { id: record.id },
+    });
+
+    return successResponse(
+      res,
+      "Password reset successfully. Please login again.",
+      null,
+      200,
+    );
   } catch (err) {
     console.error(err);
     return errorResponse(res, "Internal server error", 500);

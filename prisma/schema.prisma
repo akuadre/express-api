@@ -89,3 +89,13 @@ enum OtpPurpose {
   REGISTER
   RESET_PASSWORD
 }
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
