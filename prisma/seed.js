@@ -1,7 +1,4 @@
-// import { PrismaClient } from "@prisma/client";
-// const prisma = new PrismaClient();
-
-import { prisma, disconnectDB } from "../src/config/db.js";
+import { prisma } from "../src/config/db.js";
 
 const userId = "a02dfbea-f4ea-4a0a-8062-67cb02bf96ac";
 
@@ -115,11 +112,11 @@ const main = async () => {
   console.log("Seeding completed!");
 };
 
-main()
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await disconnectDB();
-  });
+// main()
+//   .catch((err) => {
+//     console.error(err);
+//     process.exit(1);
+//   })
+//   .finally(async () => {
+//     await disconnectDB();
+//   });

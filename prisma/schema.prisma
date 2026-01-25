@@ -14,12 +14,12 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
-
-  createdAt DateTime @default(now())
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  password      String
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
 
   movies Movie[] @relation("MovieCreator")
   watchlistItems WatchlistItem[]
@@ -27,27 +27,27 @@ model User {
 }
 
 model Movie {
-  id String @id @default(uuid()) 
-  title String
-  overview String?
+  id          String    @id @default(uuid()) 
+  title       String
+  overview    String?
   releaseYear Int
-  genres String[] @default([])
-  runtime Int?
-  posterUrl String?
-  createdBy String
-  createdAt DateTime @default(now())
+  genres      String[]  @default([])
+  runtime     Int?
+  posterUrl   String?
+  createdBy   String
+  createdAt   DateTime  @default(now())
 
-  creator User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  creator   User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   watchlistItems WatchlistItem[]
 }
 
 model WatchlistItem {
-  id String @id @default(uuid())
-  userId String
-  movieId String
-  status WatchlistStatus @default(PLANNED)
-  rating Int?
-  notes String?
+  id        String @id @default(uuid())
+  userId    String
+  movieId   String
+  status    WatchlistStatus @default(PLANNED)
+  rating    Int?
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
@@ -72,4 +72,20 @@ model BlockedToken {
   createdAt DateTime @default(now())
   
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailOtp {
+  id        String   @id @default(uuid())
+  email     String
+  otpHash   String
+  purpose   OtpPurpose
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+enum OtpPurpose {
+  REGISTER
+  RESET_PASSWORD
 }
