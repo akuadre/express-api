@@ -1,4 +1,6 @@
 import express from "express";
+import cors from "cors";
+
 import { config } from "dotenv";
 // import { connectDB, disconnectDB } from "./config/db.js";
 
@@ -16,6 +18,12 @@ import { errorResponse } from "./utils/response.js";
 config();
 
 const app = express();
+
+// allow semua origin (sementara dev)
+app.use(cors());
+
+// optional: lebih spesifik origin
+// app.use(cors({ origin: "http://localhost:8081" }));
 
 // Body parsing middlewares
 app.use(express.json());
