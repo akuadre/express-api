@@ -4,7 +4,7 @@ import { generateToken } from "../utils/generateToken.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
 import { generateOtp, hashOtp } from "../utils/otp.js";
-import { sendOtpEmail } from "../utils/sendEmail.js";
+import { sendOtpEmail, sendWelcomeEmail } from "../utils/sendEmail.js";
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -18,7 +18,7 @@ const register = async (req, res) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: { name, email, password: hashedPassword, emailVerified: false },
   });
 
@@ -153,6 +153,11 @@ export const verifyEmailOtp = async (req, res) => {
         data: { emailVerified: true },
       });
 
+      await sendWelcomeEmail({
+        email: user.email,
+        name: user.name,
+      });
+
       // generate JWT
       const token = generateToken(user.id, res);
       responseData.token = token;
@@ -164,7 +169,7 @@ export const verifyEmailOtp = async (req, res) => {
     return successResponse(res, "OTP verified succesfully", responseData, 200);
   } catch (err) {
     console.error(err);
-    return errorResponse(res, "Failed to verify OTP", 500);
+    return errorResponse(res, "Internal server error", 500);
   }
 };
 
