@@ -27,7 +27,7 @@ const register = async (req, res) => {
   await prisma.user.create({
     data: { name, email, password: hashedPassword, emailVerified: false },
   });
-
+  
   // Generate OTP for REGISTER
   const otp = generateOtp();
   const otpHash = hashOtp(otp);

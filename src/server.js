@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import movieRoutes from "./routes/movieRoutes.js";
 import watchlistRoutes from "./routes/watchlistRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
+import uploadRoutes from "./routes/upload.js";
 
 import { errorMiddleware } from "./middleware/errorMiddleware.js";
 
@@ -35,6 +36,8 @@ app.use(requestLogger);
 app.use("/auth", authRoutes);
 app.use("/movies", movieRoutes);
 app.use("/watchlist", watchlistRoutes);
+
+app.use("/upload", uploadRoutes);
 
 // Testing Routes
 app.use("/test", testRoutes);
